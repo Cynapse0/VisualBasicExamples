@@ -1,0 +1,20 @@
+    Function wmiPropVal(ByVal Optional wmiKeyName As String = "", ByVal Optional propertyID As String = "") As String
+        Dim computer As String = "."
+        Dim wmi As Object = GetObject("winmgmts:" &
+        "{impersonationLevel=impersonate}!\\" &
+        computer & "\root\cimv2")
+        Dim wmio As Object = wmi.ExecQuery("Select * from " &
+        wmiKeyName)
+        Dim ids As String = ""
+        For Each obj As Object In wmio
+            For Each prop In obj.Properties_
+
+                If Convert.ToString(prop.Name) = propertyID Then
+                    ids = ids & ", " & prop.Value
+                End If
+            Next prop
+        Next obj
+        If ids.Length > 0 Then ids = ids.Substring(2)
+
+        Return ids
+    End Function
