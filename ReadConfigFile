@@ -1,0 +1,29 @@
+    Sub SetConfig()
+        Dim sReader As System.IO.StreamReader
+        Dim fs As System.IO.FileStream
+        Dim strTemp As String = ""
+        Try
+            sReader = My.Computer.FileSystem.OpenTextFileReader(Main.configpath)
+        Catch ex As Exception
+            If ex.GetType.Name = "FileNotFoundException" Then
+            'If the file isn't found then create it
+                fs = System.IO.File.Create(Main.configpath)
+                fs.Close()
+                NewConfigFile()
+                sReader = My.Computer.FileSystem.OpenTextFileReader(Main.configpath)
+            Else
+                MsgBox("There was an unhandled exception when reading config data. The excpetion was: " & vbNewLine & vbNewLine & ex.Message & vbNewLine & vbNewLine & "Please contact the developer for further assistance. The program will now terminate.", vbOKOnly, "Fatal Error")
+                Environment.Exit(0)
+            End If
+        End Try
+
+
+
+        Do While sReader.Peek >= 0
+        'add config file line by line into a global string array
+            Main.config.Add(sReader.ReadLine())
+        Loop
+        sReader.Close()
+        'Simple condition for 4th config entry
+        If Main.config(3) = "" Then Main.REGDBTYPE = "access" Else Main.REGDBTYPE = "mysql"
+    End Sub
