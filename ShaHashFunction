@@ -1,0 +1,12 @@
+    Function GenHash(ByVal inputstring As String)
+        Dim sha256 As System.Security.Cryptography.SHA256 = System.Security.Cryptography.SHA256Managed.Create()
+        Dim bytes As Byte() = System.Text.Encoding.UTF8.GetBytes(inputstring)
+        Dim hash As Byte() = sha256.ComputeHash(bytes)
+        Dim stringBuilder As New System.Text.StringBuilder()
+
+        For i As Integer = 0 To hash.Length - 1
+            stringBuilder.Append(hash(i).ToString("X2"))
+        Next
+
+        Return Convert.ToString(stringBuilder)
+    End Function
