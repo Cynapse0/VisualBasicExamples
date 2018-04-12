@@ -1,0 +1,91 @@
+Imports System.Data
+Imports System.Data.OleDb
+Module DataConnections
+    Function FormatFieldName(ByVal rawfieldname As String, Optional ByVal language As String = "") As String
+        Select Case language
+            Case Is = ""
+                'Assume MS Access
+                Return rawfieldname
+            Case Is = "mysql"
+                Return "`" & rawfieldname & "`"
+        End Select
+        Return rawfieldname
+    End Function
+    Function FormatTableName(ByVal rawtablename As String, Optional ByVal language As String = "") As String
+        Select Case language
+            Case Is = ""
+                'Assume MS Access
+                Return rawtablename
+            Case Is = "mysql"
+                Return "`" & rawtablename & "`"
+        End Select
+        Return rawtablename
+    End Function
+    Function FormatDate(ByVal ddmmyyyyhhmmss As String, Optional ByVal language As String = "") As String
+        Select Case language
+            Case Is = ""
+                'Assume MS Access
+                Return "'" & Left(Mid(ddmmyyyyhhmmss, 5), 4) & "-" & Left(Mid(ddmmyyyyhhmmss, 3), 2) & "-" & Left(ddmmyyyyhhmmss, 2) & " " & Left(Mid(ddmmyyyyhhmmss, 7), 2) & ":" & Left(Mid(ddmmyyyyhhmmss, 9), 2) & ":" & Right(ddmmyyyyhhmmss, 2) & "'"
+            Case Is = "mysql"
+                Return "'" & Left(Mid(ddmmyyyyhhmmss, 5), 4) & "-" & Left(Mid(ddmmyyyyhhmmss, 3), 2) & "-" & Left(ddmmyyyyhhmmss, 2) & " " & Left(Mid(ddmmyyyyhhmmss, 7), 2) & ":" & Left(Mid(ddmmyyyyhhmmss, 9), 2) & ":" & Right(ddmmyyyyhhmmss, 2) & "'"
+        End Select
+        Return ddmmyyyyhhmmss
+    End Function
+    Function FormatText(ByVal text As String, Optional ByVal language As String = "")
+        Select Case language
+            Case Is = "", "access"
+                'Assume MS Access
+                Return "'" & text & "'"
+            Case Is = "mysql"
+                Return "'" & text & "'"
+        End Select
+        Return text
+    End Function
+    Function ExecuteQuery(ByVal connstring As String, ByVal sql As String, ByVal Optional type As String = "") As DataSet
+        Select Case type
+            Case Is = "mysql"
+                Dim con As New MySql.Data.MySqlClient.MySqlConnection
+                Dim cmd As New MySql.Data.MySqlClient.MySqlCommand
+                Dim ds As New DataSet
+                Dim da As New MySql.Data.MySqlClient.MySqlDataAdapter
+                con.ConnectionString = connstring
+                'cmd.CommandType = CommandType.Text
+                cmd.CommandText = sql
+                con.Open()
+                cmd.Connection = con
+                da.SelectCommand = cmd
+                da.Fill(ds)
+                Return ds
+            Case Is = "", "access"
+                Dim con As New OleDb.OleDbConnection
+                Dim cmd As New OleDb.OleDbCommand
+                Dim ds As New DataSet
+                Dim da As New OleDb.OleDbDataAdapter()
+                con.ConnectionString = connstring
+                cmd.CommandType = CommandType.Text
+                cmd.CommandText = sql
+                'Try
+                con.Open()
+                cmd.Connection = con
+                da.SelectCommand = cmd
+                da.Fill(ds)
+                    Return ds
+                'Catch ex As Exception
+
+                'End Try
+
+        End Select
+
+
+    End Function
+    Function connstr(ByVal type As String, ByVal path As String, ByVal name As String, ByVal password As String, Optional ByVal username As String = "") As String
+        Select Case type
+            Case Is = "access"
+                Return "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & path & name & "; Jet OleDb:Database Password = " & password & ";"
+            Case Is = "mysql"
+                Return "Server=" & path & ";Database = " & name & "; User = " & username & "; Password = " & password & ";"
+            Case Else
+                Return ""
+        End Select
+    End Function
+End Module
